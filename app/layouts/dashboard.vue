@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '@nuxt/ui'
-const { initAuth } = useFirebaseAuth();
-
-// アプリ起動時に認証状態を監視
-initAuth();
 
 const route = useRoute()
 const toast = useToast()
@@ -13,14 +9,14 @@ const open = ref(false)
 const links = [[{
   label: 'Home',
   icon: 'i-lucide-house',
-  to: '/dash/',
+  to: '/',
   onSelect: () => {
     open.value = false
   }
 }, {
   label: 'Inbox',
   icon: 'i-lucide-inbox',
-  to: '/dash/inbox',
+  to: '/inbox',
   badge: '4',
   onSelect: () => {
     open.value = false
@@ -28,38 +24,38 @@ const links = [[{
 }, {
   label: 'Customers',
   icon: 'i-lucide-users',
-  to: '/dash/customers',
+  to: '/customers',
   onSelect: () => {
     open.value = false
   }
 }, {
   label: 'Settings',
-  to: '/dash/settings',
+  to: '/settings',
   icon: 'i-lucide-settings',
   defaultOpen: true,
   type: 'trigger',
   children: [{
     label: 'General',
-    to: '/dash/settings',
+    to: '/settings',
     exact: true,
     onSelect: () => {
       open.value = false
     }
   }, {
     label: 'Members',
-    to: '/dash/settings/members',
+    to: '/settings/members',
     onSelect: () => {
       open.value = false
     }
   }, {
     label: 'Notifications',
-    to: '/dash/settings/notifications',
+    to: '/settings/notifications',
     onSelect: () => {
       open.value = false
     }
   }, {
     label: 'Security',
-    to: '/dash/settings/security',
+    to: '/settings/security',
     onSelect: () => {
       open.value = false
     }
@@ -87,7 +83,7 @@ const groups = computed(() => [{
     id: 'source',
     label: 'View page source',
     icon: 'i-simple-icons-github',
-    to: `https://github.com/nuxt-ui-templates/dashboard/blob/main/app/pages${route.path === '/dash/' ? '/dash/index' : route.path}.vue`,
+    to: `https://github.com/nuxt-ui-templates/dashboard/blob/main/app/pages${route.path === '/' ? '/index' : route.path}.vue`,
     target: '_blank'
   }]
 }])
@@ -123,6 +119,7 @@ onMounted(async () => {
     <UDashboardSidebar id="default" v-model:open="open" collapsible resizable class="bg-elevated/25"
       :ui="{ footer: 'lg:border-t lg:border-default' }">
       <template #header="{ collapsed }">
+        <AppLogo :collapsed="collapsed" class="w-auto h-6 shrink-0" /> <!-- ロゴコンポーネントを配置 -->
         <TeamsMenu :collapsed="collapsed" />
       </template>
 

@@ -1,72 +1,64 @@
 <script setup lang="ts">
-import type { NavigationMenuItem } from '@nuxt/ui'
+import { sub } from 'date-fns'
+import type { DropdownMenuItem } from '@nuxt/ui'
+import type { Period, Range } from '~/types'
 
-const items: NavigationMenuItem[][] = [[{
-  label: 'Home',
-  icon: 'i-lucide-house',
-  active: true
+const { isNotificationsSlideoverOpen } = useDashboard()
+
+const items = [[{
+  label: 'New mail',
+  icon: 'i-lucide-send',
+  to: '/dash/inbox'
 }, {
-  label: 'Inbox',
-  icon: 'i-lucide-inbox',
-  badge: '4'
-}, {
-  label: 'Contacts',
-  icon: 'i-lucide-users'
-}, {
-  label: 'Settings',
-  icon: 'i-lucide-settings',
-  defaultOpen: true,
-  children: [{
-    label: 'General'
-  }, {
-    label: 'Members'
-  }, {
-    label: 'Notifications'
-  }]
-}], [{
-  label: 'Feedback',
-  icon: 'i-lucide-message-circle',
-  to: 'https://github.com/nuxt-ui-templates/dashboard',
-  target: '_blank'
-}, {
-  label: 'Help & Support',
-  icon: 'i-lucide-info',
-  to: 'https://github.com/nuxt/ui',
-  target: '_blank'
-}]]
+  label: 'New customer',
+  icon: 'i-lucide-user-plus',
+  to: '/dash/customers'
+}]] satisfies DropdownMenuItem[][]
+
+const range = shallowRef<Range>({
+  start: sub(new Date(), { days: 14 }),
+  end: new Date()
+})
+const period = ref<Period>('daily')
 </script>
 
 <template>
-  <UDashboardSidebar collapsible resizable :ui="{ footer: 'border-t border-default' }">
-    <template #header="{ collapsed }">
-      <Logo v-if="!collapsed" class="h-5 w-auto shrink-0" />
-      <UIcon v-else name="i-simple-icons-nuxtdotjs" class="size-5 text-primary mx-auto" />
-    </template>
-
-    <template #default="{ collapsed }">
-      <UButton :label="collapsed ? undefined : 'Search...'" icon="i-lucide-search" color="neutral" variant="outline"
-        block :square="collapsed">
-        <template v-if="!collapsed" #trailing>
-          <div class="flex items-center gap-0.5 ms-auto">
-            <UKbd value="meta" variant="subtle" />
-            <UKbd value="K" variant="subtle" />
-          </div>
+  <UDashboardPanel id="home">
+    <template #header>
+      <UDashboardNavbar title="Home" :ui="{ right: 'gap-3' }">
+        <template #leading>
+          <UDashboardSidebarCollapse />
         </template>
-      </UButton>
 
-      <UNavigationMenu :collapsed="collapsed" :items="items[0]" orientation="vertical" />
+        <template #right>
+          <UTooltip text="Notifications" :shortcuts="['N']">
+            <UButton color="neutral" variant="ghost" square @click="isNotificationsSlideoverOpen = true">
+              <UChip color="error" inset>
+                <UIcon name="i-lucide-bell" class="size-5 shrink-0" />
+              </UChip>
+            </UButton>
+          </UTooltip>
 
-      <UNavigationMenu :collapsed="collapsed" :items="items[1]" orientation="vertical" class="mt-auto" />
+          <UDropdownMenu :items="items">
+            <UButton icon="i-lucide-plus" size="md" class="rounded-full" />
+          </UDropdownMenu>
+        </template>
+      </UDashboardNavbar>
+
+      <UDashboardToolbar>
+        <template #left>
+          <!-- NOTE: The `-ms-1` class is used to align with the `DashboardSidebarCollapse` button here. -->
+          <HomeDateRangePicker v-model="range" class="-ms-1" />
+
+          <HomePeriodSelect v-model="period" :range="range" />
+        </template>
+      </UDashboardToolbar>
     </template>
 
-    <template #footer="{ collapsed }">
-      <UButton :avatar="{
-        src: 'https://github.com/benjamincanac.png',
-        loading: 'lazy' as const
-      }" :label="collapsed ? undefined : 'Benjamin'" color="neutral" variant="ghost" class="w-full"
-        :block="collapsed" />
+    <template #body>
+      <HomeStats :period="period" :range="range" />
+      <HomeChart :period="period" :range="range" />
+      <HomeSales :period="period" :range="range" />
     </template>
-  </UDashboardSidebar>
-
-  <UDashboardNavbar title="Dashboard" icon="i-lucide-house" />
+  </UDashboardPanel>
 </template>

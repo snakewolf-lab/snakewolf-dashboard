@@ -1,4 +1,9 @@
 <script setup lang="ts">
+const { initAuth } = useFirebaseAuth();
+
+// アプリ起動時に認証状態を監視
+initAuth();
+
 // SSR時のハイドレーションエラーを防ぐため、useStateで年を管理
 const currentYear = useState('year', () => new Date().getFullYear())
 </script>
